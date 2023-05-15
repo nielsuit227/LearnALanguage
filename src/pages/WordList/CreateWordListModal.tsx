@@ -116,7 +116,7 @@ export default function CreateWordListModal({
           />
           <Divider my="5" />
           <Text>Words:</Text>
-          <Table size="sm">
+          <Table size="sm" maxH="50vh">
             <Thead>
               <Tr>
                 <Th>Name</Th>

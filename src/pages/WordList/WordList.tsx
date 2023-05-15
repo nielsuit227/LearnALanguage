@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { Flex, Button, Card, Title, Divider } from "@tremor/react";
 import { Table, Thead, Tbody, Th, Tr, Td } from "@chakra-ui/react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  doc,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  collection,
+} from "firebase/firestore";
 import CreateWordListModal from "./CreateWordListModal";
 import WordListMenu from "./WordListMenu";
+import { db } from "../../firebase.config";
 
 export default function WordLists() {
   const [wordLists, setWordLists] = useState<WordList[]>([]);
@@ -12,29 +19,19 @@ export default function WordLists() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("wordlist")
-      .then((res) => {
-        setWordLists(res.data);
-      })
-      .catch(() => {});
+    const fetch = async () => {
+      const docs = await getDocs(collection(db, "wordLists"));
+      setWordLists(docs.docs.map((d) => d.data() as WordList));
+    };
+    fetch();
   }, []);
 
   function onCreateWordList(name: string, words: Word[]) {
-    axios
-      .post("wordlist", { name, words })
-      .then((response) => {
-        setWordLists([...wordLists, response.data]);
-      })
-      .catch(() => {});
+    addDoc(collection(db, "wordLists"), { name, words });
   }
-  function deleteWordList(id: number) {
-    axios
-      .delete(`wordlist/${id}`)
-      .then(() => {
-        setWordLists(wordLists.filter((wordList) => wordList.id !== id));
-      })
-      .catch(() => {});
+  async function deleteWordList(id: number) {
+    await deleteDoc(doc(db, "wordLists", id.toString()));
+    setWordLists(wordLists.filter((wordList) => wordList.id !== id));
   }
 
   function wordListRow(wordList: WordList) {

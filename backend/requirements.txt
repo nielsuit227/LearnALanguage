@@ -1,8 +1,0 @@
-django
-djangorestframework
-dj-rest-auth
-psycopg2-binary
-django-cors-headers
-django-filter
-pytz
-python-dotenv

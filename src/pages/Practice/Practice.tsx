@@ -116,12 +116,12 @@ export default function Practice() {
           <Flex w="60%" mx={2}>
             <FormControl isInvalid={formError.length > 0}>
               <FormLabel>Enter the meaning</FormLabel>
-              <FormErrorMessage>{formError}</FormErrorMessage>
               <Input
                 placeholder="Meaning..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
+              <FormErrorMessage>{formError}</FormErrorMessage>
             </FormControl>
           </Flex>
         </Flex>
