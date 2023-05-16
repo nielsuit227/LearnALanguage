@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import axios from "axios";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ToastContainer } from "react-toastify";
 import Router from "./Router";
@@ -8,8 +7,6 @@ import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { auth, db } from "./firebase.config";
-
-axios.defaults.baseURL = "http://localhost:8000";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
