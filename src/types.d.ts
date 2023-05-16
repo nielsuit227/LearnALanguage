@@ -3,7 +3,7 @@ interface Word {
   definition: string;
 }
 interface WordList {
-  id: number;
+  id: string;
   name: string;
   words: Array<Word>;
 }

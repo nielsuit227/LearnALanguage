@@ -19,17 +19,25 @@ export default function WordLists() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetch = async () => {
-      const docs = await getDocs(collection(db, "wordLists"));
-      setWordLists(docs.docs.map((d) => d.data() as WordList));
-    };
-    fetch();
+    getDocs(collection(db, "wordLists")).then((docs) => {
+      setWordLists(
+        docs.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        })) as unknown as WordList[],
+      );
+    });
   }, []);
 
-  function onCreateWordList(name: string, words: Word[]) {
-    addDoc(collection(db, "wordLists"), { name, words });
+  async function onCreateWordList(name: string, words: Word[]) {
+    addDoc(collection(db, "wordLists"), {
+      name,
+      words,
+    }).then((d) => {
+      setWordLists((w) => [...w, { name, words, id: d.id } as WordList]);
+    });
   }
-  async function deleteWordList(id: number) {
+  async function deleteWordList(id: string) {
     await deleteDoc(doc(db, "wordLists", id.toString()));
     setWordLists(wordLists.filter((wordList) => wordList.id !== id));
   }

@@ -11,9 +11,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getDoc, doc } from "firebase/firestore";
 import FinishedModal from "./FinishedModal";
+import { db } from "../../firebase.config";
 
 function shuffle(array: Word[]) {
   for (let i = array.length - 1; i > 0; i -= 1) {
@@ -36,38 +37,49 @@ export default function Practice() {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    axios
-      .get(`wordlist/${queryParams.get("id")}`)
-      .then((response) => {
-        setWordList({ ...response.data, words: shuffle(response.data.words) });
-      })
-      .catch(() => {});
+    const id = queryParams.get("id");
+    if (id !== null) {
+      getDoc(doc(db, "wordLists", id)).then((d) => {
+        const list = { id: d.id, ...d.data() } as unknown as WordList;
+        list.words = shuffle(list.words);
+        setWordList(list);
+      });
+    }
   }, []);
 
   const submit = useCallback(() => {
     if (wordList === undefined) {
       return;
     }
+    // Correct
     if (input === wordList.words[progress].definition) {
       setCorrect((c) => c + 1);
       toast.success("Jeej, that's correct!");
+
+      // Only when last one is success, we exit
       if (progress + 1 === wordList.words.length) {
         setFinishedOpen(true);
         return;
       }
+
+      // Continue
     } else if (formError.length > 0) {
       setWordList({
         ...wordList,
         words: [...wordList.words, wordList.words[progress]],
       });
+
+      // Wrong
     } else {
       setWrong((w) => w + 1);
       setFormError(
         `Sorry, that's incorrect. It should be: ${wordList.words[progress].definition}`,
       );
+      return;
     }
     setProgress((p) => p + 1);
     setInput("");
+    setFormError("");
   }, [input, progress, wordList, formError]);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
