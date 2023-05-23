@@ -116,7 +116,10 @@ export default function WordLists() {
       />
       <CreateEditWordListModal
         isOpen={createModalOpen || editWordList !== undefined}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+          setCreateModalOpen(false);
+          setEditWordList(undefined);
+        }}
         onCreate={(
           name: string,
           words: Word[],
