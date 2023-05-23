@@ -54,8 +54,11 @@ export default function Practice() {
     if (wordList === undefined) {
       return;
     }
+    const correctWord = reverse
+      ? wordList.words[progress].word
+      : wordList.words[progress].definition;
     // Correct
-    if (input === wordList.words[progress].definition) {
+    if (input === correctWord) {
       setCorrect((c) => c + 1);
       toast.success("Jeej, that's correct!");
 
@@ -72,15 +75,13 @@ export default function Practice() {
         ...wordList,
         words: [...wordList.words, wordList.words[progress]],
       });
-      setFormError(
-        `Sorry, that's incorrect. It should be: ${wordList.words[progress].definition}`,
-      );
+      setFormError(`Sorry, that's incorrect. It should be: ${correctWord}`);
       return;
     }
     setProgress((p) => p + 1);
     setInput("");
     setFormError("");
-  }, [input, progress, wordList]);
+  }, [input, progress, wordList, reverse]);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
@@ -126,7 +127,11 @@ export default function Practice() {
             <FormLabel>
               {reverse ? wordList?.language : wordList?.translation}
             </FormLabel>
-            <Text fontSize={24}>{wordList?.words[progress].word}</Text>
+            <Text fontSize={24}>
+              {reverse
+                ? wordList?.words[progress].definition
+                : wordList?.words[progress].word}
+            </Text>
           </Flex>
           <Flex w="60%" mx={2}>
             <FormControl isInvalid={formError.length > 0}>
