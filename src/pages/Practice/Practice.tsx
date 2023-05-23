@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { getDoc, doc } from "firebase/firestore";
@@ -34,9 +34,12 @@ export default function Practice() {
   const [finishedOpen, setFinishedOpen] = useState(false);
   const [formError, setFormError] = useState("");
   const navigate = useNavigate();
+  const queryParams = useMemo(() => {
+    return new URLSearchParams(window.location.search);
+  }, []);
+  const reverse = queryParams.get("reverse") === "true";
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
     const id = queryParams.get("id");
     if (id !== null) {
       getDoc(doc(db, "wordLists", id)).then((d) => {
@@ -45,7 +48,7 @@ export default function Practice() {
         setWordList(list);
       });
     }
-  }, []);
+  }, [queryParams]);
 
   const submit = useCallback(() => {
     if (wordList === undefined) {
@@ -62,16 +65,13 @@ export default function Practice() {
         return;
       }
 
-      // Continue
-    } else if (formError.length > 0) {
+      // Wrong
+    } else {
+      setWrong((w) => w + 1);
       setWordList({
         ...wordList,
         words: [...wordList.words, wordList.words[progress]],
       });
-
-      // Wrong
-    } else {
-      setWrong((w) => w + 1);
       setFormError(
         `Sorry, that's incorrect. It should be: ${wordList.words[progress].definition}`,
       );
@@ -80,7 +80,7 @@ export default function Practice() {
     setProgress((p) => p + 1);
     setInput("");
     setFormError("");
-  }, [input, progress, wordList, formError]);
+  }, [input, progress, wordList]);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
@@ -121,13 +121,18 @@ export default function Practice() {
             Correct: {correct}, Wrong: {wrong}
           </Text>
         </Flex>
-        <Flex flexDir="row" justifyContent="center" alignItems="center" mt={5}>
-          <Flex w="30%" mx={2}>
+        <Flex flexDir="row" justifyContent="center" alignItems="center" my={10}>
+          <Flex w="30%" mx={2} flexDir="column">
+            <FormLabel>
+              {reverse ? wordList?.language : wordList?.translation}
+            </FormLabel>
             <Text fontSize={24}>{wordList?.words[progress].word}</Text>
           </Flex>
           <Flex w="60%" mx={2}>
             <FormControl isInvalid={formError.length > 0}>
-              <FormLabel>Enter the meaning</FormLabel>
+              <FormLabel>
+                {reverse ? wordList?.translation : wordList?.language}
+              </FormLabel>
               <Input
                 placeholder="Meaning..."
                 value={input}

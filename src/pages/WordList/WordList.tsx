@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Flex, Button, Card, Title, Divider } from "@tremor/react";
 import { Table, Thead, Tbody, Th, Tr, Td } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import {
   doc,
   getDocs,
@@ -12,11 +11,12 @@ import {
 import CreateWordListModal from "./CreateWordListModal";
 import WordListMenu from "./WordListMenu";
 import { db } from "../../firebase.config";
+import StartPracticeModal from "./StartPractice";
 
 export default function WordLists() {
   const [wordLists, setWordLists] = useState<WordList[]>([]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const [startPractice, setStartPractice] = useState<WordList>();
 
   useEffect(() => {
     getDocs(collection(db, "wordLists")).then((docs) => {
@@ -29,10 +29,17 @@ export default function WordLists() {
     });
   }, []);
 
-  async function onCreateWordList(name: string, words: Word[]) {
+  async function onCreateWordList(
+    name: string,
+    words: Word[],
+    language: string,
+    translation: string,
+  ) {
     addDoc(collection(db, "wordLists"), {
       name,
       words,
+      language,
+      translation,
     }).then((d) => {
       setWordLists((w) => [...w, { name, words, id: d.id } as WordList]);
     });
@@ -46,7 +53,7 @@ export default function WordLists() {
     return (
       <Tr
         _hover={{ bg: "#007bff70", cursor: "pointer" }}
-        onClick={() => navigate(`/practice?id=${wordList.id}`)}
+        onClick={() => setStartPractice(wordList)}
       >
         <Td>{wordList.name}</Td>
         <Td>{wordList.words.length}</Td>
@@ -71,12 +78,20 @@ export default function WordLists() {
       justifyContent="center"
       alignItems="start"
     >
+      <StartPracticeModal
+        isOpen={startPractice !== undefined}
+        onClose={() => setStartPractice(undefined)}
+        wordList={startPractice}
+      />
       <CreateWordListModal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onCreate={(name: string, words: Word[]) =>
-          onCreateWordList(name, words)
-        }
+        onCreate={(
+          name: string,
+          words: Word[],
+          language: string,
+          translation: string,
+        ) => onCreateWordList(name, words, language, translation)}
       />
       <Card className="w-2/3">
         <Title className="text-2xl w-full text-center">Learn a Language!</Title>

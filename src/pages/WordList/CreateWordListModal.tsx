@@ -7,6 +7,7 @@ import {
   ModalFooter,
   ModalOverlay,
   ModalContent,
+  Flex,
   Table,
   Thead,
   Tbody,
@@ -16,8 +17,10 @@ import {
   Text,
   Divider,
   Input,
+  IconButton,
 } from "@chakra-ui/react";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ImCross } from "react-icons/im";
 
 export default function CreateWordListModal({
   isOpen,
@@ -26,10 +29,17 @@ export default function CreateWordListModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string, wordList: Word[]) => void;
+  onCreate: (
+    name: string,
+    wordList: Word[],
+    language: string,
+    translation: string,
+  ) => void;
 }) {
   const [name, setName] = useState("");
   const [words, setWords] = useState<Word[]>([{ word: "", definition: "" }]);
+  const [language, setLanguage] = useState("");
+  const [translation, setTranslation] = useState("");
   const lastInputRef = useRef<HTMLInputElement | null>(null);
 
   const addRow = useCallback(() => {
@@ -75,6 +85,16 @@ export default function CreateWordListModal({
             }
           />
         </Td>
+        <Td>
+          <IconButton
+            aria-label="Delete"
+            size="sm"
+            icon={<ImCross />}
+            onClick={() => {
+              setWords(words.filter((w, i) => i !== index));
+            }}
+          />
+        </Td>
       </Tr>
     );
   }
@@ -114,13 +134,39 @@ export default function CreateWordListModal({
             onChange={(e) => setName(e.target.value)}
             maxW="50%"
           />
+
           <Divider my="5" />
+
+          {/* Languages */}
+          <Text>Languages</Text>
+
+          <Flex flexDir="row" mt={2}>
+            <Input
+              mx={5}
+              placeholder="Language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              maxW="50%"
+            />
+            <Input
+              mx={5}
+              placeholder="Translation"
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+              maxW="50%"
+            />
+          </Flex>
+
+          <Divider my="5" />
+
+          {/* Words */}
           <Text>Words:</Text>
           <Table size="sm" maxH="50vh">
             <Thead>
               <Tr>
                 <Th>Name</Th>
                 <Th>Definition</Th>
+                <Th />
               </Tr>
             </Thead>
 
@@ -137,7 +183,7 @@ export default function CreateWordListModal({
           <Button
             colorScheme="blue"
             onClick={() => {
-              onCreate(name, words);
+              onCreate(name, words, language, translation);
               onClose();
             }}
           >
