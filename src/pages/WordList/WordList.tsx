@@ -6,9 +6,10 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
+  updateDoc,
   collection,
 } from "firebase/firestore";
-import CreateWordListModal from "./CreateWordListModal";
+import CreateEditWordListModal from "./CreateEditWordListModal";
 import WordListMenu from "./WordListMenu";
 import { db } from "../../firebase.config";
 import StartPracticeModal from "./StartPractice";
@@ -17,6 +18,7 @@ export default function WordLists() {
   const [wordLists, setWordLists] = useState<WordList[]>([]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [startPractice, setStartPractice] = useState<WordList>();
+  const [editWordList, setEditWordList] = useState<WordList>();
 
   useEffect(() => {
     getDocs(collection(db, "wordLists")).then((docs) => {
@@ -35,14 +37,41 @@ export default function WordLists() {
     language: string,
     translation: string,
   ) {
-    addDoc(collection(db, "wordLists"), {
-      name,
-      words,
-      language,
-      translation,
-    }).then((d) => {
-      setWordLists((w) => [...w, { name, words, id: d.id } as WordList]);
-    });
+    if (editWordList !== undefined) {
+      updateDoc(doc(db, "wordLists", editWordList.id), {
+        name,
+        words,
+        language,
+        translation,
+      }).then(() => {
+        setWordLists((ws) =>
+          ws.map((w) =>
+            w.id === editWordList.id
+              ? ({
+                  name,
+                  words,
+                  language,
+                  translation,
+                  id: editWordList.id,
+                } as WordList)
+              : w,
+          ),
+        );
+        setEditWordList(undefined);
+      });
+    } else {
+      addDoc(collection(db, "wordLists"), {
+        name,
+        words,
+        language,
+        translation,
+      }).then((d) => {
+        setWordLists((w) => [
+          ...w,
+          { name, words, language, translation, id: d.id } as WordList,
+        ]);
+      });
+    }
   }
   async function deleteWordList(id: string) {
     await deleteDoc(doc(db, "wordLists", id.toString()));
@@ -64,7 +93,9 @@ export default function WordLists() {
           }}
         >
           <WordListMenu
-            onEdit={() => {}}
+            onEdit={() => {
+              setEditWordList(wordList);
+            }}
             onDelete={() => deleteWordList(wordList.id)}
           />
         </Td>
@@ -83,8 +114,8 @@ export default function WordLists() {
         onClose={() => setStartPractice(undefined)}
         wordList={startPractice}
       />
-      <CreateWordListModal
-        isOpen={createModalOpen}
+      <CreateEditWordListModal
+        isOpen={createModalOpen || editWordList !== undefined}
         onClose={() => setCreateModalOpen(false)}
         onCreate={(
           name: string,
@@ -92,6 +123,7 @@ export default function WordLists() {
           language: string,
           translation: string,
         ) => onCreateWordList(name, words, language, translation)}
+        editWordList={editWordList}
       />
       <Card className="w-2/3">
         <Title className="text-2xl w-full text-center">Learn a Language!</Title>

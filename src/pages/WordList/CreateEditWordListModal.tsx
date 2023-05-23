@@ -22,10 +22,11 @@ import {
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ImCross } from "react-icons/im";
 
-export default function CreateWordListModal({
+export default function CreateEditWordListModal({
   isOpen,
   onClose,
   onCreate,
+  editWordList,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -35,6 +36,7 @@ export default function CreateWordListModal({
     language: string,
     translation: string,
   ) => void;
+  editWordList?: WordList;
 }) {
   const [name, setName] = useState("");
   const [words, setWords] = useState<Word[]>([{ word: "", definition: "" }]);
@@ -105,6 +107,19 @@ export default function CreateWordListModal({
       setWords([{ word: "", definition: "" }]);
     }
   }, [isOpen]);
+  useEffect(() => {
+    if (editWordList !== undefined) {
+      setName(editWordList.name);
+      setWords(editWordList.words);
+      setLanguage(editWordList.language);
+      setTranslation(editWordList.translation);
+    } else {
+      setName("");
+      setWords([{ word: "", definition: "" }]);
+      setLanguage("");
+      setTranslation("");
+    }
+  }, [editWordList]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -187,7 +202,7 @@ export default function CreateWordListModal({
               onClose();
             }}
           >
-            Create
+            {editWordList === undefined ? "Create" : "Save"}
           </Button>
         </ModalFooter>
       </ModalContent>
