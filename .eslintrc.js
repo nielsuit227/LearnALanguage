@@ -10,7 +10,7 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:prettier/recommended",
   ],
-  ignorePatterns: [".eslintrc.js"],
+  ignorePatterns: [".eslintrc.js", "*.js", "*.jsx", "*.css"],
   overrides: [],
   parser: "@typescript-eslint/parser",
   parserOptions: {
