@@ -12,13 +12,10 @@ jobs:
         with:
           node-version: 16
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install modules
-        working-directory: frontend
         run: npm ci
       - name: Run ESLint
-        working-directory: frontend
         run: npm run lint:prod
       - name: Run tsx
-        working-directory: frontend
         run: npx tsc --noEmit --noErrorTruncation
