@@ -55,8 +55,8 @@ export default function Practice() {
       return;
     }
     const correctWord = reverse
-      ? wordList.words[progress].word
-      : wordList.words[progress].definition;
+      ? wordList.words[progress].definition
+      : wordList.words[progress].word;
     // Correct
     if (input === correctWord) {
       setCorrect((c) => c + 1);
@@ -129,8 +129,8 @@ export default function Practice() {
             </FormLabel>
             <Text fontSize={24}>
               {reverse
-                ? wordList?.words[progress].definition
-                : wordList?.words[progress].word}
+                ? wordList?.words[progress].word
+                : wordList?.words[progress].definition}
             </Text>
           </Flex>
           <Flex w="60%" mx={2}>
