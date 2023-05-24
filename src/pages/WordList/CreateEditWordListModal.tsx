@@ -176,17 +176,18 @@ export default function CreateEditWordListModal({
 
           {/* Words */}
           <Text>Words:</Text>
-          <Table size="sm" maxH="50vh">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Definition</Th>
-                <Th />
-              </Tr>
-            </Thead>
-
-            <Tbody>{words.map((word, index) => inputRow(index))}</Tbody>
-          </Table>
+          <Flex flexDir="row" mt={2} maxH="50vh" overflow="scroll">
+            <Table size="sm">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Definition</Th>
+                  <Th />
+                </Tr>
+              </Thead>
+              <Tbody>{words.map((word, index) => inputRow(index))}</Tbody>
+            </Table>
+          </Flex>
           <Button mt="4" onClick={() => addRow()}>
             Add word
           </Button>
